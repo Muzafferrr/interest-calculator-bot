@@ -32,15 +32,15 @@
           </select>
         </div>
         <div class="calculateArea">
-          <button class="calculateButton">Calculate</button>
+          <button class="calculateButton" @click="interestCalculation()" :disabled="buttonDisable" :style="[buttonDisable ? disabledStyle : '']">Calculate</button>
         </div>
       </div>
     </div>
-    <div class="calculateResult">
+    <div class="calculateResult" v-show="result !== 0">
       <span class="title">Calculation Result</span>
       <label class="outText">
         If you invested ${{capital}} now,
-        {{termValue}} {{term}} later, you get <span class="resultText">{{result}}</span>
+        {{termValue}} {{term.toLowerCase()}} later, you get <span class="resultText">${{result}}</span>
       </label>
     </div>
   </div>
@@ -49,20 +49,60 @@
 <script>
 
 export default {
-  data(){
-    return{
+  data() {
+    return {
       capital: null,
       rate: 0,
       rateType: 'Yearly',
       termValue: 0,
       term: 'Year',
-      termArray: ['Year','Month','Day'],
-      result:0
+      termArray: ['Year', 'Month', 'Day'],
+      result: 0,
+      disabledStyle: {
+        background: '#cccccc'
+      }
     }
   },
-  methods:{},
-  computed:{},
-  components: {}
+  methods: {
+    interestCalculation(){
+      //basit faiz hesaplama fonksiyonu
+      const result = this.capital * Math.pow((1 + this.rate * 0.01), this.computedTermValue);
+      this.result = parseInt(result.toString());
+      console.log(this.result)
+    }
+  },
+  computed: {
+    computedTermValue() {
+      if (this.rateType === 'Yearly') {
+        if (this.term === 'Year') {
+          return this.termValue;
+        } else if (this.term === 'Month') {
+          return this.termValue / 12;
+        } else {
+          return this.termValue / 360;
+        }
+      } else if (this.rateType === 'Monthly') {
+        if (this.term === 'Year') {
+          return this.termValue * 12;
+        } else if (this.term === 'Month') {
+          return this.termValue;
+        } else {
+          return this.termValue / 30;
+        }
+      } else {
+        if (this.term === 'Year') {
+          return this.termValue * 360;
+        } else if (this.term === 'Month') {
+          return this.termValue * 12;
+        } else {
+          return this.termValue;
+        }
+      }
+    },
+    buttonDisable(){
+      return this.termValue === null || this.rate === null || this.result === null || this.termValue === 0 || this.rate === 0
+    }
+  }
 }
 </script>
 
